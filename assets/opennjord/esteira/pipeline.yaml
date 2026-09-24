@@ -1,0 +1,113 @@
+# pipeline.yaml — etapas da Esteira OpenNjord servidas pelo DeepSeek Harness.
+#
+# Edite este arquivo para incluir, remover ou reordenar etapas. O cursor de
+# cada projeto (.spec/esteira-state.yaml) guarda só o id da etapa atual, então
+# mudar a lista não altera o progresso: uma etapa removida que ainda está no
+# cursor aparece como "fora da esteira" até o projeto avançar.
+#
+# Campos: id (único), label, section, skill (slug servido pelo harness),
+# args (argumento fixo; "sprint" recebe a sprint ativa), gate (manual | auto),
+# verdict (a etapa emite veredito), produces (diretórios do projeto que ela escreve),
+# enabled (false mantém a etapa listada mas o cursor pula por cima dela).
+#
+# Cada projeto pode ter a sua própria cópia desta tabela em .spec/treadmill.yaml;
+# ela é criada quando você liga ou desliga uma etapa na aba Treadmill do projeto.
+schema: 1
+stages:
+  - id: 00-discovery
+    label: Discovery
+    section: 00 Discovery
+    skill: discovery
+    gate: auto
+    verdict: false
+    produces: [.spec/discovery, .spec/plano]
+  - id: plano
+    label: Plano de Sprints
+    section: 00 Discovery
+    skill: discovery
+    gate: manual
+    verdict: false
+    produces: [.spec/plano]
+  - id: 00s
+    label: Discovery da Sprint
+    section: Sprint
+    skill: discovery
+    args: sprint
+    gate: auto
+    verdict: false
+    produces: [.spec/sprints]
+  - id: 10a
+    label: Design Gate
+    section: 10 Arquitetura
+    skill: arquitetura
+    args: design
+    gate: manual
+    verdict: false
+    produces: [.spec/arquitetura, docs/adrs]
+  - id: "20"
+    label: Desenvolvimento
+    section: 20 Desenvolvimento
+    skill: desenvolvimento
+    gate: auto
+    verdict: false
+    produces: [.spec/sprints]
+  - id: "25"
+    label: Review de Código
+    section: 25 Review
+    skill: review-codigo-subagents
+    gate: auto
+    verdict: true
+    produces: [.spec/sprints]
+  - id: 10b
+    label: Review de Arquitetura
+    section: 10 Arquitetura
+    skill: arquitetura
+    args: review
+    requires: ["25"]
+    gate: auto
+    verdict: true
+    produces: [.spec/arquitetura]
+  - id: 30-qa-rpa
+    label: QA RPA
+    section: 30 QA
+    skill: qa-rpa
+    gate: auto
+    verdict: true
+    produces: [.spec/qa]
+  - id: 30-qa
+    label: Gate de QA
+    section: 30 QA
+    skill: qa
+    gate: auto
+    verdict: true
+    produces: [.spec/qa]
+  - id: 40-redteam
+    label: Red Team
+    section: 40 Segurança
+    skill: redteam
+    gate: auto
+    verdict: true
+    produces: [.spec/seguranca]
+  - id: 40-seguranca
+    label: Gate de Segurança
+    section: 40 Segurança
+    skill: seguranca
+    requires: [40-redteam]
+    gate: manual
+    verdict: true
+    produces: [.spec/seguranca]
+  - id: deploy
+    label: Deploy
+    section: Deploy
+    skill: deploy
+    gate: manual
+    verdict: false
+    produces: []
+  - id: commit-push
+    label: Commit & push
+    section: Deploy
+    skill: commit-push
+    gate: manual
+    verdict: false
+    produces: []
+    enabled: false
