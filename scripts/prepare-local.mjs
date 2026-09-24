@@ -24,7 +24,7 @@ for (const [name, expected] of Object.entries(manifest.peerDependencies)) {
   await link(name, target)
 }
 for (const name of ['typescript', '@types/node']) await link(name, await realpath(join(harness, 'node_modules', name)))
-const fromOwner = createRequire(join(harness, 'packages/treadmill/treadmill/package.json'))
+const fromOwner = createRequire(join(harness, 'packages/skill/skill-filesystem/package.json'))
 await link('yaml', dirname(fromOwner.resolve('yaml/package.json')))
 await mkdir('node_modules/.bin', { recursive: true })
 await symbolic('node_modules/.bin/tsc', resolve('node_modules/typescript/bin/tsc'))
